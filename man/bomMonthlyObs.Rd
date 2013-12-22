@@ -2,10 +2,10 @@
 \alias{bomMonthlyObs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A BOM monthly observation getter.
+A BOM monthly observation extractor.
 }
 \description{
-A function to retrieve daily data from the BOM website.
+A function to extract daily data from the BOM website.
 }
 \usage{
 bomMonthlyObs(siteNumber, observation = "mean_max_temp",...)

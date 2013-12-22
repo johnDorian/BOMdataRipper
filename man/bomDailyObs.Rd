@@ -1,10 +1,10 @@
 \name{bomDailyObs}
 \alias{bomDailyObs}
 \title{
-A BOM daily observation getter.
+A BOM daily observation extractor.
 }
 \description{
-A function to retrieve daily data from the BOM website.
+A function to extract daily data from the BOM website.
 }
 \usage{
 bomDailyObs(siteNumber, observation = "max_temp",...)
