@@ -5,6 +5,6 @@ Version: 0.0.1
 Date: 2013-12-21
 Author: Jason Lessels and Andrey Kostenko
 Maintainer: Andrey Kostenko <akoste01@gmail.com>
-Depends: RCurl,XML,lubridate
+Depends: RCurl,XML,lubridate, stringr
 Description: Extraction, analysis and visualisation of Australian weather and climate data.
 License: GPL (>=2)
