@@ -10,3 +10,11 @@
     )
     	
 }
+### A function which checks how recently the site list has been downloaded and if older than 1 month downloads a new copy.
+.onLoad <- function(lib, pkg) {
+  diff_ <- check_age_of_database()
+  if(diff_ > 30){
+    bomSites <- allBOMSites()
+    save(bomSites, file=paste0("data/site_list_", format(today(), "%Y_%m_%d"), ".Rdata"))
+  }
+}
