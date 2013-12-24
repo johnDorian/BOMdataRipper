@@ -6,5 +6,7 @@ function(){
   bomSites$lat <- suppressWarnings(as.numeric(as.character(bomSites$lat)))
   bomSites$startDate <- strptime(paste("1",bomSites$startDate),"%d %b %Y")
   bomSites$endDate <- strptime(paste("1",bomSites$endDate),"%d %b %Y")
+  bomSites <- bomSites[-1,]
+  bomSites <- head(bomSites, -6)
   return(bomSites)
 }
