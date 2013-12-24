@@ -8,7 +8,12 @@ Retrieve all BOM sites in Australia
 A wrapper function to download a list of all BOM sites.
 }
 \usage{
-allBOMSites()
+allBOMSites(force_db_update = FALSE)
+}
+\arguments{
+  \item{force_db_update}{
+  Logical. Should the function load the site information internally or download a newer version. 
+  }
 }
 
 \value{
