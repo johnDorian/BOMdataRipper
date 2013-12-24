@@ -1,10 +1,10 @@
 allBOMSites <-
 function(force_db_update=FALSE){
   if(!force_db_update){ ## if the user just wants teh results from the saved database then give them that. 
-    days_since_last_update <- check_age_of_database()
+    days_since_last_update <- .check_age_of_database()
     if(days_since_last_update<30){
       site_numbers <- dir("data/", pattern="site_list_")
-      bomSites <- load(paste0("data/", site_numbers))
+      load(paste0("data/", site_numbers))
       return(bomSites)
     }
   }
@@ -17,10 +17,11 @@ function(force_db_update=FALSE){
   bomSites$endDate <- strptime(paste("1",bomSites$endDate),"%d %b %Y")
   bomSites <- bomSites[-1,]
   bomSites <- head(bomSites, -6)
+  save(bomSites, file=paste0("data/site_list_", format(today(), "%Y_%m_%d"), ".Rdata"))
   return(bomSites)
 }
 
-check_age_of_database <- function(){
+.check_age_of_database <- function(){
   site_numbers <- dir("data/", pattern="site_list_")
   file_string <- str_split(site_numbers, "list_")
   date_string <- str_replace(file_string[[1]][2], ".Rdata", "")
