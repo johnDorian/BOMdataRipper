@@ -177,7 +177,7 @@ ggplot() +
   scale_fill_gradient(low = "steelblue",high = "red") 
 @
 <<fig=TRUE, echo=FALSE>>=
-print(ggplot() + geom_raster(aes(x, y, fill=rain), predicted, alpha=0.5) + facet_wrap(~fdate) +
+print(ggplot() + geom_raster(aes(x, y, fill=rain), predicted) + facet_wrap(~fdate) +
   scale_fill_gradient(low = "steelblue",high = "red") )
 @
 
