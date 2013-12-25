@@ -1,10 +1,12 @@
 Package: BOMdataRipper
 Type: Package
 Title: Australian BOM data extraction and analysis
-Version: 0.0.1
-Date: 2013-12-21
+Version: 0.0.2
+Date: 2013-12-24
 Author: Jason Lessels and Andrey Kostenko
 Maintainer: Andrey Kostenko <akoste01@gmail.com>
 Depends: RCurl,XML,lubridate, stringr
+VignetteBuilder: knitr
+Suggests: knitr, ggmap, ggplot2
 Description: Extraction, analysis and visualisation of Australian weather and climate data.
 License: GPL (>=2)
