@@ -41,13 +41,13 @@ if (class(observation) != "character")
   theurl <- paste("http://www.bom.gov.au/jsp/ncc/cdio/weatherData/av?p_display_type=dailyZippedDataFile&p_stn_num=0", 
                   siteNumber, "&p_c=", uniqueID, "&p_nccObsCode=", dataCode, 
                   "&p_startYear=", start_year, sep = "")
+
   tmpdir <- tempdir()
+  download.file(theurl, paste0(tmpdir, "/tmp.zip"), mode="wb", quiet=TRUE)
   
-  file <- basename(theurl)
-  download.file(theurl, paste0(tmpdir, "/tmp.zip"), mode='wb')
-dir.create(paste0(tmpdir, "/tmpdata"))  
-unzip(paste0(tmpdir, "/tmp.zip"), exdir = paste0(tmpdir, "/tmpdata"))
   
+  unzip(paste0(tmpdir, "/tmp.zip"), exdir = paste0(tmpdir, "/tmpdata"))
+
   fileName <- list.files(paste0(tmpdir, "/tmpdata"), pattern="_Data.csv")
   dat <- read.csv(paste0(tmpdir, "/tmpdata/", fileName), as.is = TRUE)
 
@@ -73,5 +73,6 @@ unzip(paste0(tmpdir, "/tmp.zip"), exdir = paste0(tmpdir, "/tmpdata"))
                     "month", "day", "dailyExposure")
   }
   dat$date <- dmy(paste(dat$day, dat$month, dat$year), quiet = TRUE)
+  
   return(dat)
 }
