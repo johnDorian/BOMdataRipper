@@ -1,0 +1,111 @@
+\documentclass[12pt]{article}
+\font\tty=cmtt10 at 12truept
+\title{A brief introduction to the \texttt{BOMdataRipper} package}
+\author{Jason Lessels and Andrey Kostenko}
+
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+\section{Introduction}
+This is intended to provide a brief overview of the functionality of the package.
+
+Load the package and the database with all sites: 
+
+<<message=FALSE>>=
+library(BOMdataRipper)
+all_sites <- allBOMSites()
+@
+
+By default the \texttt{allBOMSites} fucntion examines the database and updates the database if it is 30 days or older. However, if the user would like to update the database manually this can be achieved using:
+
+<< eval=FALSE>>=
+all_sites <- allBOMSites(force_db_update = TRUE)
+@
+
+\section{Plot the location of all active sites across Australia}
+The \texttt{allBOMSites} function returns a data.frame with statistics and the geographical location of each station. All sites can be subsetted to remove all non-active sites. 
+<<>>=
+active_sites_index <- all_sites$stillActive=="Y"
+active_sites <-  subset(all_sites, active_sites_index)
+@
+Using the \texttt{ggmap} package a simple map showing the location of all the points can be created. 
+<<fig=FALSE,message=FALSE, warning=FALSE>>=
+require(ggmap)
+australia = get_map(location = "Australia", zoom=4)
+australia_map = ggmap(australia)
+# Subset the active sites for plotting
+active_sites_index <- all_sites$stillActive=="Y"
+active_sites <-  subset(all_sites, active_sites_index)
+australia_map + geom_point(aes(long,lat), data=active_sites)
+@
+\begin{center}
+\begin{figure}
+<<fig=TRUE, echo=FALSE>>=
+print(australia_map + geom_point(aes(long,lat), data=active_sites))
+@
+\caption{Location of meterological sites across Australia}
+\end{figure}
+\end{center}
+\section{Downloading daily rainfall data in Sydney}
+
+<<>>=
+site_index <- str_detect(tolower(all_sites$stationName), "penrith lakes")
+penrith_station_number <- all_sites[site_index, "stationNumber"]
+rainfall <- bomDailyObs(penrith_station_number, observation="rain")
+@
+<<fig=FALSE>>=
+# load the ggthemes package to help with plotting
+library(ggthemes)
+# Add a new column with zeros for plottiing
+rainfall$zeros <- rep(0, nrow(rainfall))
+# plot it using geom_segments
+ggplot() + geom_segment(aes(y=rainfall,yend=zeros, x=date, xend=date), 
+                        rainfall) + theme_few() + 
+  xlab("date") + ylab("rainfall (mm)")
+@
+\begin{figure}
+<<fig=TRUE, echo=FALSE>>=
+ggplot() + geom_segment(aes(y=rainfall,yend=zeros, x=date, xend=date), 
+                        rainfall) + theme_few() + 
+  xlab("date") + ylab("rainfall (mm)")
+@
+\caption{Daily rainfall data for Penrith Lakes, NSW}
+\end{figure}
+
+\newpage
+
+\section{Downloading and mapping monthly rainfall in Sydney}
+This section outlines how metrological sites within a certain area can be found and the data for these sites can be easily downloaded. A brief example of spatcetime prediction of monthly rainfall data is also provided. 
+
+<<>>=
+#Get the statilite image from google.
+sydney = get_map(location = "Blacktown, NSW, Australia",
+                 zoom=10, maptype = 'satellite')
+sydney_map = ggmap(sydney)
+# Get the extent of the plot.
+bounding_box <- sydney_map[[1]]
+sydney_site_index <- all_sites$lat>bounding_box$lat[1]&
+  all_sites$long>bounding_box$lon[1]&
+  all_sites$long<bounding_box$lon[4]&
+  all_sites$lat<bounding_box$lat[4]
+@
+<<fig=FALSE>>=
+sydney_rainfall_sites <- all_sites[sydney_site_index, ]
+syndey_active_sites <- sydney_rainfall_sites$stillActive =="Y"
+sydney_rainfall_sites <- sydney_rainfall_sites[syndey_active_sites,]
+remove_nas <- !is.na(sydney_rainfall_sites$stationNumber)
+sydney_rainfall_sites <- subset(sydney_rainfall_sites, remove_nas)
+sydney_map + 
+  geom_point(aes(x=long, y=lat),col="red", size=10, 
+             data=sydney_rainfall_sites)
+@
+\begin{figure}
+<<fig=TRUE, echo=FALSE>>=
+print(sydney_map + geom_point(aes(x=long, y=lat),col="red", size=5, data=sydney_rainfall_sites))
+@
+\caption{Map of Sydney area with active meterological stations.}
+\end{figure}
+\end{document}
