@@ -1,4 +1,2 @@
-.DS_*$
-*.Rproj$
 ^.*\.Rproj$
 ^\.Rproj\.user$

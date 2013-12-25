@@ -108,4 +108,80 @@ print(sydney_map + geom_point(aes(x=long, y=lat),col="red", size=5, data=sydney_
 @
 \caption{Map of Sydney area with active meterological stations.}
 \end{figure}
+<<>>=
+## Download the monthly rainfall of each site. 
+annualRain <- lapply(1:nrow(sydney_rainfall_sites), function(i) 
+  try(bomMonthlyObs(sydney_rainfall_sites$stationNumber[i],"rain")))
+names(annualRain) <- sydney_rainfall_sites$stationNumber
+### Format the downloaded data
+fail_index <- sapply(annualRain, function(x) !inherits(x, "try-error"))
+annualRain <- annualRain[fail_index]
+@
+<<>>=
+get2012 <- function(x){
+  index <- x$year==2012
+  if(sum(index)>0){
+    x$observation[index]
+  } else {
+    NA
+  }
+}
+rain_2012<- lapply(1:length(annualRain),function(i) 
+  get2012(annualRain[[i]][[1]]))
+names(rain_2012) <- names(annualRain)
+no_data <-sapply(rain_2012, function(x) !any(is.na(x)))
+rain_2012 <- rain_2012[no_data]
+merged_data <- do.call("cbind",rain_2012)
+rain_data = data.frame(date = as.Date(ymd(paste(2012, 1:12, 1))), 
+                       merged_data)
+@
+<<>>=
+library(gstat)
+coor_index <- match(str_replace(names(rain_data[-1]), "X", ""), 
+                    sydney_rainfall_sites$stationNumber)
+syd_rain <- sydney_rainfall_sites[coor_index,]
+syd_rain$y <- syd_rain$lat
+syd_rain$x <- syd_rain$long
+coordinates(syd_rain)<- ~x+y
+proj4string(syd_rain) = "+proj=longlat +datum=WGS84"
+plot(syd_rain)
+
+pts <- coordinates(syd_rain)
+rownames(pts) <- syd_rain$stationNumber
+pts = SpatialPoints(pts, 
+  CRS("+proj=longlat +datum=WGS84 
+      +ellps=WGS84 +towgs84=0,0,0"))
+library(spacetime)
+rain.data = stConstruct(rain_data[,-1], 
+  space = list(values = 1:ncol(rain_data[,-1])),
+  time = rain_data[,1], SpatialObj = pts, interval = TRUE)
+grid <- SpatialPixels(SpatialPoints(makegrid(pts, n=1000)), 
+    proj4string= "+proj=longlat +datum=WGS84 
+                      +ellps=WGS84 +towgs84=0,0,0")
+library(xts)
+tgrd = rain_data[,1]
+pred.grid = STF(grid, tgrd)
+v = vgmST("separable", space = vgm(1, "Exp", 75), 
+          time = vgm(1, "Exp", 1.5), sill=0.6)
+rain.ST = krigeST(values ~ 1, rain.data, pred.grid, v)
+@
+<<fig=FALSE>>=
+predicted = data.frame(coordinates(rain.ST), 
+                       time = rep(rain_data[,1], each= length(grid)),
+                       pred = rain.ST@data, 
+                       fdate = as.factor(rep(rain_data[,1], each=length(grid))))
+names(predicted) = c("x", "y", "date", "rain", "fdate")
+ggplot() + 
+  geom_raster(aes(x, y, fill=rain), predicted) +
+  facet_wrap(~fdate) +
+  scale_fill_gradient(low = "steelblue",high = "red") 
+@
+<<fig=TRUE, echo=FALSE>>=
+print(ggplot() + geom_raster(aes(x, y, fill=rain), predicted, alpha=0.5) + facet_wrap(~fdate) +
+  scale_fill_gradient(low = "steelblue",high = "red") )
+@
+
+
+
+
 \end{document}
