@@ -1,0 +1,39 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{An R Markdown Vignette with knitr}
+-->
+A brief introduction to the **BOMdataRipper** package
+========================================================
+
+This is intended to provide a brief overview of the functionality of the package.
+
+Load the package and the database with all sites: 
+
+```{r,message=FALSE}
+library(BOMdataRipper)
+all_sites <- allBOMSites()
+```
+By default onloading the package examines the database and updates the database if it is 30 days or older. However, if the user would like to update the database manually this can be achieved using:
+
+```{r eval=FALSE}
+all_sites <- allBOMSites(force_db_update = TRUE)
+```
+
+### Examine Active sites
+The *allBOMSites* function returns a data.frame with statistics and the geographical location of each station. All sites can be subsetted to remove all non-active sites. 
+```{r}
+active_sites_index <- all_sites$stillActive=="Y"
+active_sites <-  subset(all_sites, active_sites_index)
+```
+
+```{r figure=TRUE, message=FALSE, warning=FALSE}
+require(ggmap)
+australia = get_map(location = "Australia", zoom=4)
+australia_map = ggmap(australia)
+# Subset the active sites for plotting
+active_sites_index <- all_sites$stillActive=="Y"
+active_sites <-  subset(all_sites, active_sites_index)
+
+australia_map + geom_point(aes(long,lat), data=active_sites)
+
+```
