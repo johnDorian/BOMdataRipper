@@ -21,9 +21,9 @@ function(force_db_update=FALSE){
   bomSites$stillActive <- str_replace_all(bomSites$stillActive, " ", "")
   bomSites <- bomSites[-1,]
   bomSites <- head(bomSites, -6)
-  save(bomSites, file="data/site_list.RData")
+  save(bomSites, file="site_list.RData")
   last_updated <- now()
-  save(last_updated, file="data/last_updated.RData")
+  save(last_updated, file="last_updated.RData")
   return(bomSites)
 }
 
