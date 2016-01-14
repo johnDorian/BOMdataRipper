@@ -8,6 +8,7 @@ function(force_db_update=FALSE){
     }
   }
   
+  
   bomSites <- suppressWarnings(read.fwf (url("ftp://ftp.bom.gov.au/anon2/home/ncc/metadata/lists_by_element/alpha/alphaAUS_139.txt"),
                         widths=c(7,40,10,10,10,10,6,4,4),header=F,skip=3))
   names(bomSites) <- c("stationNumber","stationName","lat","long","startDate","endDate","years","coverage","stillActive")
